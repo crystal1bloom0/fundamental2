@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant/model/restaurants.dart';
+import 'package:restaurant/model/list.dart';
 import 'package:restaurant/detail_restaurant.dart';
 
 class RestaurantList extends StatelessWidget {
@@ -12,49 +12,36 @@ class RestaurantList extends StatelessWidget {
     return Material(
       child: ListTile(
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10.0, vertical: 7.0),
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
         leading: Hero(
-          tag:
-              "https://restaurant-api.dicoding.dev/images/large/${restaurant.pictureId}",
+          tag: restaurant.pictureId,
           child: Image.network(
             "https://restaurant-api.dicoding.dev/images/large/${restaurant.pictureId}",
-            width: 200,
-            height: 400,
-            fit: BoxFit.cover,
+            width: 100,
+            height: 100,
           ),
         ),
-        title: Text(
-          restaurant.name,
-        ),
+        title: Text(restaurant.name),
+        trailing: Text('rating ${restaurant.rating}'),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.place,
-                  color: Colors.blue,
-                  size: 10,
-                ),
-                Expanded(
-                  child: Text(restaurant.city),
-                ),
-              ],
+            Container(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      restaurant.city,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 255, 208, 0),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.star,
-                  color: Color.fromARGB(255, 39, 110, 176),
-                  size: 25,
-                ),
-                Expanded(
-                  child: Text(restaurant.rating.toString()),
-                ),
-              ],
-            )
           ],
         ),
         onTap: () => Navigator.pushNamed(

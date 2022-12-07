@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:restaurant/detail_restaurant.dart';
-import 'package:restaurant/model/restaurants.dart';
-import 'package:restaurant/provider/custom_provider_restaurant.dart';
-import 'package:restaurant/api/api_restaurant.dart';
+import 'package:provider/provider.dart';
+import 'package:restaurant/widget/card_restaurant.dart';
+import 'package:restaurant/provider/custom_provider_list.dart';
 
 class RestaurantListPage extends StatelessWidget {
-  static const routeName = '/restaurant_list';
+  static const routeName = '/page_list';
 
   const RestaurantListPage({Key? key}) : super(key: key);
 
@@ -13,6 +12,7 @@ class RestaurantListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 255, 208, 0),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -24,47 +24,52 @@ class RestaurantListPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamed(
                   context,
-                  '/restaurant_search',
+                  '/page_search',
                 );
               },
             ),
           ],
         ),
       ),
-      body: FutureBuilder<String>(
-        future: DefaultAssetBundle.of(context)
-            .loadString('assets/restaurants.json'),
-        builder: (context, snapshot) {
-          Colors.black;
-          final List<Restaurant> restaurant = parseRestaurant(snapshot.data);
-          return ListView.builder(
-            itemCount: restaurant.length,
-            itemBuilder: (context, index) {
-              return _buildRestaurantItem(context, restaurant[index]);
-            },
-          );
-        },
-      ),
+      body: _buildList(),
     );
   }
-}
 
-Widget _buildRestaurantItem(BuildContext context, Restaurant restaurant) {
-  return ListTile(
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-    leading: Hero(
-      tag: restaurant.pictureId,
-      child: Image.network(
-        restaurant.pictureId,
-        width: 100,
-      ),
-    ),
-    title: Text(restaurant.name),
-    trailing: Text('rating ${restaurant.rating}'),
-    subtitle: Text(restaurant.city),
-    onTap: () {
-      Navigator.pushNamed(context, RestaurantDetailPage.routeName,
-          arguments: restaurant);
-    },
-  );
+  Widget _buildList() {
+    return Consumer<ProviderList>(
+      builder: (context, state, _) {
+        if (state.state == ResultListState.loading) {
+          return const Center(
+              child: CircularProgressIndicator(
+            color: Color.fromARGB(255, 255, 208, 0),
+          ));
+        } else if (state.state == ResultListState.hasData) {
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: state.result.restaurants.length,
+            itemBuilder: (context, index) {
+              var restaurant = state.result.restaurants[index];
+              return RestaurantList(restaurant: restaurant);
+            },
+          );
+        } else if (state.state == ResultListState.noData) {
+          return Center(
+            child: Material(
+              child: Text(state.message),
+            ),
+          );
+        } else if (state.state == ResultListState.error) {
+          return Center(
+            child: Material(
+              child: Text(state.message),
+            ),
+          );
+        } else {
+          return const Center(
+            child: Material(),
+          );
+        }
+      },
+    );
+  }
 }

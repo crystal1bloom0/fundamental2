@@ -1,40 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant/model/search.dart';
+import 'package:restaurant/provider/custom_provider_search.dart';
 import 'package:restaurant/detail_restaurant.dart';
-import 'package:restaurant/model/restaurants.dart';
-import 'package:restaurant/provider/custom_provider_restaurant.dart';
-import 'package:restaurant/api/api_restaurant.dart';
+import 'package:restaurant/api/api_service.dart';
 
 class RestaurantSearchPage extends StatefulWidget {
-  static const routeName = '/restaurant_search';
+  static const routeName = '/page_search';
 
   const RestaurantSearchPage({Key? key}) : super(key: key);
 
   @override
-  State<RestaurantSearchPage> createState() => _RestaurantSearchPageState();
+  State<RestaurantSearchPage> createState() => _RestaurantSearchPage();
 }
 
-class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
+class _RestaurantSearchPage extends State<RestaurantSearchPage> {
   String query = '';
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ProviderSearch>(
       create: (_) => ProviderSearch(
-        apiRestaurant: ApiRestaurant(),
+        apiService: ApiRestaurant(),
       ),
       child: Consumer<ProviderSearch>(
         builder: (context, search, _) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Cari restaurant'),
+              title: const Text('Cari restaurant?'),
             ),
             body: SafeArea(
                 child: Column(
               children: [
                 Container(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 6.0),
                   child: TextFormField(
                     onChanged: ((value) {
                       setState(() {
@@ -43,8 +43,9 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
                       search.DataSearch(value);
                     }),
                     decoration: const InputDecoration(
-                        suffix: Icon(Icons.search),
-                        hintText: 'Cari restaurant...'),
+                      focusColor: Colors.black,
+                      hintText: 'Ketik nama restaurant...',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -66,28 +67,28 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
 
   Widget _buildResult(BuildContext context) {
     return Consumer<ProviderSearch>(builder: (context, value, _) {
-      if (value.state == CustomSearchState.loading) {
+      if (value.state == ResultSearchState.loading) {
         return const Center(
             child: CircularProgressIndicator(
-          color: Colors.blue,
+          color: Colors.black,
         ));
-      } else if (value.state == CustomSearchState.hasData) {
+      } else if (value.state == ResultSearchState.hasData) {
         return Expanded(
           child: ListView.builder(
               itemCount: value.result.restaurants.length,
               itemBuilder: (context, index) {
                 var restaurant = value.result.restaurants[index];
-                return ResultSearchPage(restaurants: restaurant);
+                return ResultPencarian(restaurants: restaurant);
               }),
         );
-      } else if (value.state == CustomSearchState.noData) {
+      } else if (value.state == ResultSearchState.noData) {
         return const Center(
             child: Text(
                 'The search you are looking for does not match any restaurant data'));
-      } else if (value.state == CustomSearchState.error) {
+      } else if (value.state == ResultSearchState.error) {
         return const Center(
           child:
-              Text('no internet network. please turn on the internet network'),
+              Text("no internet network. please turn on the internet network"),
         );
       } else {
         return const Text('');
@@ -96,10 +97,10 @@ class _RestaurantSearchPageState extends State<RestaurantSearchPage> {
   }
 }
 
-class ResultSearchPage extends StatelessWidget {
+class ResultPencarian extends StatelessWidget {
   final Restaurant restaurants;
 
-  const ResultSearchPage({Key? key, required this.restaurants})
+  const ResultPencarian({Key? key, required this.restaurants})
       : super(key: key);
 
   @override
